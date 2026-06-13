@@ -1,0 +1,229 @@
+.calc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 52, 4, 0.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+
+.calc-modal {
+  background: var(--morning-mist);
+  width: 100%;
+  max-width: 480px;
+  max-height: 92dvh;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -4px 24px rgba(23, 52, 4, 0.15);
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.calc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 16px 12px;
+  background: var(--forest-floor);
+  color: var(--young-wheat);
+}
+
+.calc-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.calc-subtitle {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.calc-close {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--young-wheat);
+  flex-shrink: 0;
+}
+
+.calc-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.calc-unit-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.calc-swap-btn {
+  margin-top: 28px;
+  background: var(--leaf-cream);
+  border: 1px solid var(--young-wheat);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--forest-floor);
+  transition: background 0.15s;
+}
+
+.calc-swap-btn:hover {
+  background: var(--young-wheat);
+}
+
+.calc-region {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--paddy-green);
+  margin-top: 4px;
+}
+
+.calc-result-card {
+  background: var(--leaf-cream);
+  border: 1px solid var(--young-wheat);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.calc-result-label {
+  font-size: 0.78rem;
+  color: var(--paddy-green);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.calc-result-value {
+  font-size: 1rem;
+  color: var(--deep-soil);
+  line-height: 1.5;
+}
+
+.calc-result-value strong {
+  color: var(--forest-floor);
+  font-size: 1.2rem;
+}
+
+.calc-acres-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.calc-acres-hint strong {
+  color: var(--harvest-sun);
+}
+
+.calc-reference {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--dry-earth);
+}
+
+.calc-reference h3 {
+  font-size: 0.9rem;
+  color: var(--dark-loam);
+  margin-bottom: 10px;
+}
+
+.calc-ref-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.calc-ref-item {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  font-size: 0.78rem;
+  padding: 8px 10px;
+  background: var(--sand-dune);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.calc-ref-item span:first-child {
+  color: var(--dark-loam);
+  font-weight: 600;
+}
+
+.calc-ref-item span:last-child {
+  color: var(--forest-floor);
+  font-weight: 600;
+  text-align: right;
+}
+
+.calc-note {
+  font-size: 0.72rem;
+  color: var(--river-clay);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* Calculator trigger button on form */
+.farm-size-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.farm-size-label-row label {
+  margin-bottom: 0 !important;
+}
+
+.calc-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--leaf-cream);
+  border: 1px solid var(--young-wheat);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--forest-floor);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.calc-trigger-btn:hover {
+  background: var(--young-wheat);
+  border-color: var(--lime-crop);
+}
+
+@media (min-width: 480px) {
+  .calc-overlay {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .calc-modal {
+    border-radius: var(--radius-lg);
+    max-height: 85dvh;
+  }
+}

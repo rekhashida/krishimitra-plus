@@ -1,0 +1,204 @@
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.logo-minimal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Faint background K */
+.logo-bg-k {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 4.5em;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.on-dark .logo-bg-k {
+  color: rgba(200, 221, 151, 0.18);
+}
+
+.on-light .logo-bg-k {
+  color: rgba(151, 196, 89, 0.22);
+}
+
+/* Icons */
+.logo-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.logo-plant {
+  width: 22px;
+  height: 38px;
+}
+
+.logo-chip {
+  width: 26px;
+  height: 26px;
+}
+
+.on-dark .logo-plant,
+.on-dark .logo-chip {
+  color: var(--young-wheat);
+}
+
+.on-light .logo-plant,
+.on-light .logo-chip {
+  color: var(--forest-floor);
+}
+
+.logo-seed {
+  fill: var(--harvest-sun);
+}
+
+.on-dark .logo-seed {
+  fill: var(--golden-ear);
+}
+
+.logo-ai-text {
+  fill: var(--lime-crop);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.on-dark .logo-ai-text {
+  fill: var(--young-wheat);
+}
+
+.on-light .logo-ai-text {
+  fill: var(--paddy-green);
+}
+
+/* Text block */
+.logo-text-block {
+  position: relative;
+  z-index: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.logo-name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.logo-line1,
+.logo-line2 {
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.on-dark .logo-line1,
+.on-dark .logo-line2 {
+  color: var(--young-wheat);
+}
+
+.on-light .logo-line1,
+.on-light .logo-line2 {
+  color: var(--forest-floor);
+}
+
+.logo-divider {
+  display: block;
+  height: 2px;
+  margin-top: 3px;
+  border-radius: 1px;
+}
+
+.on-dark .logo-divider {
+  background: var(--young-wheat);
+  opacity: 0.6;
+}
+
+.on-light .logo-divider {
+  background: var(--forest-floor);
+}
+
+.logo-tagline {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.on-dark .logo-tagline {
+  color: var(--lime-crop);
+}
+
+.on-light .logo-tagline {
+  color: var(--paddy-green);
+}
+
+/* Sizes */
+.logo-size-sm .logo-plant { width: 18px; height: 30px; }
+.logo-size-sm .logo-chip { width: 22px; height: 22px; }
+.logo-size-sm .logo-line1,
+.logo-size-sm .logo-line2 { font-size: 0.95rem; }
+.logo-size-sm .logo-bg-k { font-size: 3.2em; left: -4px; }
+.logo-size-sm .logo-tagline { font-size: 0.48rem; letter-spacing: 1.5px; }
+.logo-size-sm .logo-minimal { gap: 8px; }
+
+.logo-size-md .logo-plant { width: 24px; height: 40px; }
+.logo-size-md .logo-chip { width: 28px; height: 28px; }
+.logo-size-md .logo-line1,
+.logo-size-md .logo-line2 { font-size: 1.25rem; }
+.logo-size-md .logo-bg-k { font-size: 4.5em; }
+.logo-size-md .logo-tagline { font-size: 0.6rem; }
+
+.logo-size-lg .logo-plant { width: 32px; height: 52px; }
+.logo-size-lg .logo-chip { width: 36px; height: 36px; }
+.logo-size-lg .logo-line1,
+.logo-size-lg .logo-line2 { font-size: 1.75rem; }
+.logo-size-lg .logo-bg-k { font-size: 6em; left: -8px; }
+.logo-size-lg .logo-tagline { font-size: 0.7rem; letter-spacing: 2.5px; }
+.logo-size-lg .logo-minimal { gap: 14px; }
+
+/* Welcome hero card */
+.logo-hero-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border-left: 5px solid var(--forest-floor);
+  padding: 24px 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.logo-hero-card .logo-wrapper {
+  justify-content: center;
+}
+
+.logo-feature-bar {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: var(--leaf-cream);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--forest-floor);
+  letter-spacing: 0.3px;
+}
+
+.logo-team-credit {
+  margin-top: 10px;
+  font-size: 0.68rem;
+  color: var(--river-clay);
+}

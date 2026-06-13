@@ -1,0 +1,52 @@
+:root {
+  /* Green Family — Primary Brand */
+  --leaf-cream: #EAF3DE;
+  --young-wheat: #C8DD97;
+  --lime-crop: #97C459;
+  --paddy-green: #639922;
+  --forest-floor: #3B6D11;
+  --deep-soil: #27580A;
+  --root-dark: #173404;
+
+  /* Amber Family — Warnings & Wheat */
+  --wheat-husk: #FAEEDA;
+  --golden-ear: #FAC775;
+  --harvest-sun: #EF9F27;
+  --dry-straw: #BA7517;
+  --burnt-chaff: #854F0B;
+  --dark-bark: #633806;
+  --charred-root: #412402;
+
+  /* Stone & Gray — Neutral Surfaces */
+  --morning-mist: #F8F6F0;
+  --sand-dune: #F1EFE8;
+  --dry-earth: #D3D1C7;
+  --river-clay: #B4B2A9;
+  --stone-gray: #888780;
+  --pebble-dark: #5F5E5A;
+  --slate: #444441;
+  --dark-loam: #2C2C2A;
+
+  /* Accent — Alerts & Danger */
+  --pale-alert: #FCEBEB;
+  --danger-red: #E24B4A;
+  --deep-red: #A32D2D;
+
+  /* Semantic shortcuts */
+  --bg-app: var(--morning-mist);
+  --bg-card: var(--sand-dune);
+  --bg-nav: var(--forest-floor);
+  --text-primary: var(--dark-loam);
+  --text-secondary: var(--pebble-dark);
+  --text-nav: var(--young-wheat);
+  --border: var(--dry-earth);
+  --cta-bg: var(--forest-floor);
+  --cta-text: var(--young-wheat);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow: 0 2px 12px rgba(23, 52, 4, 0.08);
+  --nav-height: 64px;
+  --header-height: 72px;
+}
