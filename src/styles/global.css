@@ -294,6 +294,11 @@ img {
   color: var(--deep-red);
 }
 
+.tag-success {
+  background: var(--paddy-green);
+  color: #ffffff;
+}
+
 /* Alerts */
 .alert {
   padding: 12px 14px;

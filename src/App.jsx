@@ -13,6 +13,7 @@ import PostJob from './pages/PostJob'
 import FindWorkers from './pages/FindWorkers'
 import FindJobs from './pages/FindJobs'
 import Rating from './pages/Rating'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
               <Route path="/find-workers" element={<FindWorkers />} />
               <Route path="/find-jobs" element={<FindJobs />} />
               <Route path="/rating" element={<Rating />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<Navigate to="/language" replace />} />
             </Routes>
           </Layout>
