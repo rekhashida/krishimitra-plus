@@ -31,7 +31,7 @@ async function uploadProfilePhoto(file, workerId) {
 
 export default function WorkerRegister() {
   const navigate = useNavigate()
-  const { setUserType, setUserProfile, t, language } = useApp()
+  const { setUserType, setUserProfile, t, language, session } = useApp()
   const photoRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -84,7 +84,7 @@ export default function WorkerRegister() {
     setErrors({})
     const workerId = crypto.randomUUID()
     const profile = {
-      id: workerId, name: form.name.trim(), age: parseInt(form.age, 10),
+      id: workerId, user_id: session?.user?.id ?? null, name: form.name.trim(), age: parseInt(form.age, 10),
       phone: `+91${form.phone.trim()}`, village: form.village.trim(),
       district: form.district, state: form.state, skills: form.skills, crop_types: form.crop_types,
       available_from: form.available_from, available_until: form.available_until,

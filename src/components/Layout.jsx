@@ -1,13 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Languages } from 'lucide-react'
+import { ArrowLeft, Languages, LogOut } from 'lucide-react'
 import Logo from './Logo'
 import BottomNav from './BottomNav'
 import { useApp } from '../context/AppContext'
 
-const hideNavRoutes = ['/', '/language', '/farmer-register', '/worker-register']
+const hideNavRoutes = ['/', '/language', '/login', '/signup', '/privacy', '/farmer-register', '/worker-register']
 
 const backFallback = {
   '/': '/language',
+  '/login': '/',
+  '/signup': '/',
   '/farmer-register': '/',
   '/worker-register': '/',
   '/crop-scanner': '/farmer-dashboard',
@@ -19,7 +21,7 @@ const backFallback = {
 export default function Layout({ children }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { userType, language, t } = useApp()
+  const { userType, language, t, session, logout } = useApp()
 
   const showBottomNav = !hideNavRoutes.includes(pathname)
   const isLanguagePage = pathname === '/language'
@@ -66,19 +68,32 @@ export default function Layout({ children }) {
             <Logo size="sm" showTagline />
           </div>
 
-          {!isLanguagePage ? (
-            <button
-              type="button"
-              className="header-lang-btn"
-              onClick={() => navigate('/language')}
-              aria-label={t('changeLanguage')}
-              title={t('changeLanguage')}
-            >
-              <Languages size={20} />
-            </button>
-          ) : (
-            <span className="header-back-spacer" />
-          )}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {!isLanguagePage ? (
+              <button
+                type="button"
+                className="header-lang-btn"
+                onClick={() => navigate('/language')}
+                aria-label={t('changeLanguage')}
+                title={t('changeLanguage')}
+              >
+                <Languages size={20} />
+              </button>
+            ) : (
+              <span className="header-back-spacer" />
+            )}
+            {session && (
+              <button
+                type="button"
+                className="header-lang-btn"
+                onClick={async () => { await logout(); navigate('/') }}
+                aria-label="Log out"
+                title="Log out"
+              >
+                <LogOut size={20} />
+              </button>
+            )}
+          </div>
         </div>
       </header>
       <main className={`app-main ${isLanguagePage ? 'app-main-language' : ''}`}>{children}</main>

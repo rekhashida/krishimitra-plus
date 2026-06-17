@@ -22,7 +22,7 @@ async function uploadProfilePhoto(file, farmerId) {
 
 export default function FarmerRegister() {
   const navigate = useNavigate()
-  const { setUserType, setUserProfile, t, language } = useApp()
+  const { setUserType, setUserProfile, t, language, session } = useApp()
   const photoRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -83,7 +83,7 @@ export default function FarmerRegister() {
     setErrors({})
     const farmerId = crypto.randomUUID()
     const profile = {
-      id: farmerId, name: form.name.trim(), phone: `+91${form.phone.trim()}`,
+      id: farmerId, user_id: session?.user?.id ?? null, name: form.name.trim(), phone: `+91${form.phone.trim()}`,
       village: form.village.trim(), district: form.district, state: form.state,
       farm_size: parseFloat(form.farm_size), land_size: parseFloat(form.farm_size),
       crop_types: form.crop_types, crops: form.crop_types.join(', '),

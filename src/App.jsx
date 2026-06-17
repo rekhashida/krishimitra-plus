@@ -3,7 +3,7 @@ import { AppProvider } from './context/AppContext'
 import LanguageGuard from './components/LanguageGuard'
 import Layout from './components/Layout'
 import LanguageSelect from './pages/LanguageSelect'
-import Welcome from './pages/Welcome'
+import Root from './pages/Root'
 import FarmerRegister from './pages/FarmerRegister'
 import WorkerRegister from './pages/WorkerRegister'
 import FarmerDashboard from './pages/FarmerDashboard'
@@ -14,6 +14,8 @@ import FindWorkers from './pages/FindWorkers'
 import FindJobs from './pages/FindJobs'
 import Rating from './pages/Rating'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 export default function App() {
   return (
@@ -23,7 +25,7 @@ export default function App() {
           <Layout>
             <Routes>
               <Route path="/language" element={<LanguageSelect />} />
-              <Route path="/" element={<Welcome />} />
+              <Route path="/" element={<Root />} />
               <Route path="/farmer-register" element={<FarmerRegister />} />
               <Route path="/worker-register" element={<WorkerRegister />} />
               <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
@@ -34,6 +36,8 @@ export default function App() {
               <Route path="/find-jobs" element={<FindJobs />} />
               <Route path="/rating" element={<Rating />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<Navigate to="/language" replace />} />
             </Routes>
           </Layout>

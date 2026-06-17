@@ -433,3 +433,100 @@ img {
     font-size: 1.75rem;
   }
 }
+
+/* Landing Page */
+.landing-page {
+  min-height: 100%;
+}
+
+.landing-hero {
+  position: relative;
+  min-height: 480px;
+  background-image: url('/images/hero-farm.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(27,94,32,0.75) 0%, rgba(27,94,32,0.55) 50%, rgba(241,248,233,1) 100%);
+}
+
+.landing-hero-overlay {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px 20px;
+  color: #fff;
+  max-width: 480px;
+}
+
+.landing-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 16px 0 4px;
+  color: #fff;
+}
+
+.landing-tagline {
+  font-size: 1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--lime-crop);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.landing-sub {
+  font-size: 0.95rem;
+  color: #f1f8e9;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.landing-cta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.landing-cta .btn {
+  min-width: 140px;
+}
+
+.landing-features {
+  display: grid;
+  gap: 12px;
+  padding: 20px 16px;
+  margin-top: -20px;
+  position: relative;
+  z-index: 2;
+}
+
+.landing-feature-card {
+  text-align: left;
+}
+
+.landing-feature-card h3 {
+  margin: 10px 0 4px;
+  font-size: 1rem;
+  color: var(--deep-soil);
+}
+
+.landing-feature-card p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+@media (min-width: 700px) {
+  .landing-features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
