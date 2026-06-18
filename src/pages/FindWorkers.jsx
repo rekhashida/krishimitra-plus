@@ -3,6 +3,7 @@ import { Phone, MapPin, Star, IndianRupee } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { tSkill, tCrop } from '../i18n/translations'
+import SkeletonCard from '../components/SkeletonCard'
 
 const DEMO_WORKERS = [
   { id: '1', name: 'Suresh Kumar', village: 'Anand', district: 'Anand', state: 'Gujarat', skills: ['Harvesting', 'Tractor Driving'], crop_types: ['Wheat', 'Cotton'], daily_wage: 450, willing_to_travel: true, phone: '+919876543210', rating: 4.8, jobs_completed: 12 },
@@ -70,7 +71,11 @@ export default function FindWorkers() {
         <input type="search" placeholder={t('searchWorkers')} value={filter} onChange={(e) => setFilter(e.target.value)} />
       </div>
       {loading ? (
-        <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{t('loadingWorkers')}</p>
+        <>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </>
       ) : filtered.length === 0 ? (
         <div className="card">{t('noWorkers')}</div>
       ) : (

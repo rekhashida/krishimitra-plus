@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Briefcase } from 'lucide-react'
+import Spinner from '../components/Spinner'
 import { useApp } from '../context/AppContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { tSkill } from '../i18n/translations'
 import { getWageSuggestion } from '../data/wageData'
+import { useToast } from '../context/ToastContext'
 
 const POST_SKILLS = ['Harvesting', 'Plowing', 'Irrigation', 'Pesticide Spray', 'Tractor Driving', 'Planting', 'Weeding']
 
 export default function PostJob() {
   const { userProfile, t, language } = useApp()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -55,9 +58,12 @@ export default function PostJob() {
         if (dbError) throw dbError
       }
       setSuccess(true)
+      showToast(t('jobPosted') || 'Job posted successfully!', 'success')
       setForm({ title: '', description: '', wage: '', duration: '', workers_needed: '1', skill_required: '' })
     } catch (err) {
-      setError(err.message || t('jobFailed'))
+      const msg = err.message || t('jobFailed')
+      setError(msg)
+      showToast(msg, 'error')
     } finally {
       setLoading(false)
     }
@@ -113,7 +119,7 @@ export default function PostJob() {
           <input id="workers_needed" name="workers_needed" type="number" min="1" value={form.workers_needed} onChange={handleChange} />
         </div>
         <button type="submit" className="btn btn-primary" disabled={loading}>
-          <Briefcase size={18} />{loading ? t('posting') : t('postJob')}
+          {loading ? <Spinner size={18} color="#fff" /> : <Briefcase size={18} />}{loading ? t('posting') : t('postJob')}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, UserPlus } from 'lucide-react'
+import Spinner from '../components/Spinner'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import GoogleIcon from '../components/GoogleIcon'
 import Logo from '../components/Logo'
@@ -92,7 +93,7 @@ export default function Signup() {
                 <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
               </div>
               <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-                <UserPlus size={18} />{loading ? 'Creating account...' : 'Sign Up'}
+                {loading ? <Spinner size={18} color="#fff" /> : <UserPlus size={18} />}{loading ? 'Creating account...' : 'Sign Up'}
               </button>
             </form>
 

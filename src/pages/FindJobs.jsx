@@ -3,6 +3,7 @@ import { MapPin, IndianRupee, Clock } from 'lucide-react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { useApp } from '../context/AppContext'
 import { tSkill } from '../i18n/translations'
+import SkeletonCard from '../components/SkeletonCard'
 
 const DEMO_JOBS = [
   { id: '1', title: 'Wheat Harvesting', description: 'Need 5 workers for 3-day wheat harvest.', location: 'Anand, Gujarat', district: 'Anand', state: 'Gujarat', wage: 600, duration: '3 days', skill_required: 'Harvesting', farmer_name: 'Ramesh Patel' },
@@ -83,7 +84,11 @@ export default function FindJobs() {
       </div>
       {applyError && <div className="alert alert-error">{applyError}</div>}
       {loading ? (
-        <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{t('loadingJobs')}</p>
+        <>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </>
       ) : filtered.length === 0 ? (
         <div className="card">{t('noJobs')}</div>
       ) : (

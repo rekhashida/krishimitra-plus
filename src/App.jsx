@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider } from './context/AppContext'
+import { ToastProvider } from './context/ToastContext'
 import LanguageGuard from './components/LanguageGuard'
 import Layout from './components/Layout'
 import LanguageSelect from './pages/LanguageSelect'
@@ -19,7 +20,8 @@ import Signup from './pages/Signup'
 
 export default function App() {
   return (
-    <AppProvider>
+   <AppProvider>
+      <ToastProvider>
       <BrowserRouter>
         <LanguageGuard>
           <Layout>
@@ -43,6 +45,7 @@ export default function App() {
           </Layout>
         </LanguageGuard>
       </BrowserRouter>
+      </ToastProvider>
     </AppProvider>
   )
 }

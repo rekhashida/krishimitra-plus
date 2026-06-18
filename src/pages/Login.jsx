@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, LogIn } from 'lucide-react'
+import Spinner from '../components/Spinner'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import GoogleIcon from '../components/GoogleIcon'
 import Logo from '../components/Logo'
@@ -64,7 +65,7 @@ export default function Login() {
             <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           </div>
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-            <LogIn size={18} />{loading ? 'Logging in...' : 'Log In'}
+            {loading ? <Spinner size={18} color="#fff" /> : <LogIn size={18} />}{loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
