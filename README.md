@@ -215,6 +215,16 @@ All tables use Row Level Security: public read access for matching, owner-only w
 - [ ] Partner integration with Common Service Centres (CSCs) and Krishi Vigyan Kendras
 
 ---
+
+## 👥 Team AgriNova
+
+- **Rekha Shida**
+- **Jayraj Chavda**
+
+Built for **Samsung Solve for Tomorrow 2026** · Theme: *AI Living for India*
+
+---
+
 ## 📄 License
 
 This project was built for educational and competition purposes as part of Samsung Solve for Tomorrow 2026.
@@ -228,4 +238,3 @@ This project was built for educational and competition purposes as part of Samsu
 - [Hugging Face](https://huggingface.co) for AI model hosting
 - [Netlify](https://netlify.com) for frontend deployment
 - Samsung Solve for Tomorrow & IIT Delhi (FITT) for the opportunity
-
