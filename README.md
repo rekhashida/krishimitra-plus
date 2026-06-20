@@ -5,9 +5,7 @@
 **From Field to Future**
 
 [![Live App](https://img.shields.io/badge/Live%20App-krishimitra--plus.netlify.app-2E7D32?style=for-the-badge)](https://krishimitra-plus.netlify.app)
-[![Samsung Solve for Tomorrow](https://img.shields.io/badge/Samsung%20Solve%20for%20Tomorrow-2026-0d47a1?style=for-the-badge)](https://www.samsung.com/in/solvefortomorrow/)
 
-Built by **Team AgriNova** for Samsung Solve for Tomorrow 2026 · Theme: *AI Living for India*
 
 ---
 
@@ -216,14 +214,6 @@ All tables use Row Level Security: public read access for matching, owner-only w
 
 ---
 
-## 👥 Team AgriNova
-
-- **Rekha Shida**
-- **Jayraj Chavda**
-
-Built for **Samsung Solve for Tomorrow 2026** · Theme: *AI Living for India*
-
----
 
 ## 📄 License
 
