@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react'
 import { Camera, Upload, Leaf, Volume2 } from 'lucide-react'
-import { Client } from '@gradio/client'
 import { useApp } from '../context/AppContext'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { tCrop } from '../i18n/translations'
@@ -35,60 +34,70 @@ export default function CropScanner() {
   }
 
   const runScan = async () => {
-    if (!imageFile) { setError(t('noCropPhoto')); return }
-    setScanning(true)
-    setError('')
+  if (!imageFile) { setError(t('noCropPhoto')); return }
+  setScanning(true)
+  setError('')
 
-    try {
-      // Connect to Hugging Face Space
-      const client = await Client.connect(HF_SPACE)
+  try {
+    // Convert image to base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result.split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(imageFile)
+    })
 
-      // Send image to AI model
-      const apiResult = await client.predict('/predict_disease', {
-        img: imageFile,
-      })
-
-      // apiResult.data is the dict returned by our app.py:
-      // { disease, confidence, top3 }
-      const data = apiResult.data[0] // Gradio wraps output in an array
-
-      const diseaseName = data.disease
-      const confidence = data.confidence
-
-      // Look up remedy info
-      const info = getDiseaseInfo(diseaseName)
-
-      const scanResult = {
-        crop: info.crop,
-        disease: diseaseName,
-        confidence: confidence,
-        severity: info.severity,
-        cause: info.cause,
-        organic: info.organic,
-        chemical: info.chemical,
-        prevention: info.prevention,
-        advice: info.organic, // for backward compatibility with severity tags
+    // Call Hugging Face API directly (no @gradio/client needed)
+    const response = await fetch(
+      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: [`data:image/${imageFile.type.split('/')[1]};base64,${base64}`]
+        })
       }
+    )
 
-      setResult(scanResult)
+    if (!response.ok) throw new Error(`API error: ${response.status}`)
 
-      // Save to Supabase if configured
-      if (isSupabaseConfigured() && userProfile?.id) {
-        await supabase.from('crop_scans').insert([{
-          farmer_id: userProfile.id,
-          crop_name: scanResult.crop,
-          disease: scanResult.disease,
-          severity: scanResult.severity,
-          recommendation: scanResult.organic,
-        }])
-      }
-    } catch (err) {
-      console.error('Scan error:', err)
-      setError('Could not reach AI model. Please check your internet connection and try again.')
+    const result = await response.json()
+    const data = result.data[0]
+
+    const diseaseName = data.disease || data
+    const confidence = data.confidence || 95
+    const info = getDiseaseInfo(diseaseName)
+
+    const scanResult = {
+      crop: info.crop,
+      disease: diseaseName,
+      confidence: confidence,
+      severity: info.severity,
+      cause: info.cause,
+      organic: info.organic,
+      chemical: info.chemical,
+      prevention: info.prevention,
+      advice: info.organic,
     }
 
-    setScanning(false)
+    setResult(scanResult)
+
+    if (isSupabaseConfigured() && userProfile?.id) {
+      await supabase.from('crop_scans').insert([{
+        farmer_id: userProfile.id,
+        crop_name: scanResult.crop,
+        disease: scanResult.disease,
+        severity: scanResult.severity,
+        recommendation: scanResult.organic,
+      }])
+    }
+  } catch (err) {
+    console.error('Scan error:', err)
+    setError('Could not reach AI model. Please check your internet connection and try again.')
   }
+
+  setScanning(false)
+}
 
   const speakResult = () => {
     if (!result) return
