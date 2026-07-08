@@ -49,7 +49,7 @@ export default function CropScanner() {
 
     // Call Hugging Face API directly (no @gradio/client needed)
     const response = await fetch(
-      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict',
+      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict_disease',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
