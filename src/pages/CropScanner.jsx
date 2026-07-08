@@ -39,33 +39,23 @@ export default function CropScanner() {
   setError('')
 
   try {
-    // Convert image to base64
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result.split(',')[1])
-      reader.onerror = reject
-      reader.readAsDataURL(imageFile)
+    const { Client } = await import('@gradio/client')
+
+    // Wake up the space first if sleeping
+    const client = await Client.connect('rekhashida/krishimitra-disease-api', {
+      hf_token: undefined,
+      status_callback: (status) => {
+        console.log('Space status:', status)
+      }
     })
 
-    // Call Hugging Face API directly (no @gradio/client needed)
-    const response = await fetch(
-      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict_disease',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: [`data:image/${imageFile.type.split('/')[1]};base64,${base64}`]
-        })
-      }
-    )
+    const result = await client.predict('/predict_disease', {
+      img: imageFile
+    })
 
-    if (!response.ok) throw new Error(`API error: ${response.status}`)
-
-    const result = await response.json()
     const data = result.data[0]
-
-    const diseaseName = data.disease || data
-    const confidence = data.confidence || 95
+    const diseaseName = data.disease || 'Unknown'
+    const confidence = data.confidence || 0
     const info = getDiseaseInfo(diseaseName)
 
     const scanResult = {
@@ -91,9 +81,14 @@ export default function CropScanner() {
         recommendation: scanResult.organic,
       }])
     }
+
   } catch (err) {
     console.error('Scan error:', err)
-    setError('Could not reach AI model. Please check your internet connection and try again.')
+    if (err.message?.includes('sleeping') || err.message?.includes('timeout')) {
+      setError('AI model is waking up — please wait 30 seconds and try again.')
+    } else {
+      setError('Could not reach AI model. Please check your internet connection and try again.')
+    }
   }
 
   setScanning(false)
