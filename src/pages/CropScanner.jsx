@@ -39,37 +39,41 @@ export default function CropScanner() {
   setError('')
 
   try {
-    // Step 1: Upload image to Hugging Face Space
-    const formData = new FormData()
-    formData.append('files', imageFile)
+    // Convert image to base64
+    const toBase64 = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
 
-    const uploadRes = await fetch(
-      'https://rekhashida-krishimitra-disease-api.hf.space/upload',
-      { method: 'POST', body: formData }
-    )
+    const base64Image = await toBase64(imageFile)
 
-    if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.status}`)
-    const uploadedFiles = await uploadRes.json()
-    const uploadedPath = uploadedFiles[0]
-
-    // Step 2: Run prediction with uploaded file path
-    const predictRes = await fetch(
+    // Call Gradio 4.x REST API
+    const response = await fetch(
       'https://rekhashida-krishimitra-disease-api.hf.space/run/predict_disease',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: [{ path: uploadedPath, orig_name: imageFile.name }]
-        })
+        body: JSON.stringify({ data: [base64Image] })
       }
     )
 
-    if (!predictRes.ok) throw new Error(`Prediction failed: ${predictRes.status}`)
-    const prediction = await predictRes.json()
-    const data = prediction.data[0]
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
 
-    const diseaseName = typeof data === 'string' ? data : (data.disease || 'Unknown')
-    const confidence = typeof data === 'object' ? (data.confidence || 95) : 95
+    const result = await response.json()
+    const data = result.data[0]
+
+    // Handle both string and object responses
+    const diseaseName = typeof data === 'object'
+      ? (data.disease || 'Unknown')
+      : data
+    const confidence = typeof data === 'object'
+      ? (data.confidence || 95)
+      : 95
+
     const info = getDiseaseInfo(diseaseName)
 
     const scanResult = {
