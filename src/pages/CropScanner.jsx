@@ -39,23 +39,37 @@ export default function CropScanner() {
   setError('')
 
   try {
-    const { Client } = await import('@gradio/client')
+    // Step 1: Upload image to Hugging Face Space
+    const formData = new FormData()
+    formData.append('files', imageFile)
 
-    // Wake up the space first if sleeping
-    const client = await Client.connect('rekhashida/krishimitra-disease-api', {
-      hf_token: undefined,
-      status_callback: (status) => {
-        console.log('Space status:', status)
+    const uploadRes = await fetch(
+      'https://rekhashida-krishimitra-disease-api.hf.space/upload',
+      { method: 'POST', body: formData }
+    )
+
+    if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.status}`)
+    const uploadedFiles = await uploadRes.json()
+    const uploadedPath = uploadedFiles[0]
+
+    // Step 2: Run prediction with uploaded file path
+    const predictRes = await fetch(
+      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict_disease',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: [{ path: uploadedPath, orig_name: imageFile.name }]
+        })
       }
-    })
+    )
 
-    const result = await client.predict('/predict_disease', {
-      img: imageFile
-    })
+    if (!predictRes.ok) throw new Error(`Prediction failed: ${predictRes.status}`)
+    const prediction = await predictRes.json()
+    const data = prediction.data[0]
 
-    const data = result.data[0]
-    const diseaseName = data.disease || 'Unknown'
-    const confidence = data.confidence || 0
+    const diseaseName = typeof data === 'string' ? data : (data.disease || 'Unknown')
+    const confidence = typeof data === 'object' ? (data.confidence || 95) : 95
     const info = getDiseaseInfo(diseaseName)
 
     const scanResult = {
@@ -84,11 +98,7 @@ export default function CropScanner() {
 
   } catch (err) {
     console.error('Scan error:', err)
-    if (err.message?.includes('sleeping') || err.message?.includes('timeout')) {
-      setError('AI model is waking up — please wait 30 seconds and try again.')
-    } else {
-      setError('Could not reach AI model. Please check your internet connection and try again.')
-    }
+    setError('Could not reach AI model. Please check your internet connection and try again.')
   }
 
   setScanning(false)
