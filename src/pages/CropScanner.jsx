@@ -46,59 +46,50 @@ export default function CropScanner() {
       reader.onerror = reject
       reader.readAsDataURL(file)
     })
-
     const base64Image = await toBase64(imageFile)
 
-    // Call Gradio 4.x REST API
-    const response = await fetch(
-      'https://rekhashida-krishimitra-disease-api.hf.space/run/predict_disease',
+    // Gradio 5 uses /call/ endpoint (not /run/)
+    // Step 1: Submit the job
+    const submitRes = await fetch(
+      'https://rekhashida-krishimitra-disease-api.hf.space/call/predict',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: [base64Image] })
+        body: JSON.stringify({ data: [{ path: base64Image, meta: { _type: 'gradio.FileData' } }] })
       }
     )
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`)
+    if (!submitRes.ok) {
+      // Try old format as fallback
+      const fallbackRes = await fetch(
+        'https://rekhashida-krishimitra-disease-api.hf.space/run/predict',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: [base64Image] })
+        }
+      )
+      if (!fallbackRes.ok) throw new Error(`API error: ${fallbackRes.status}`)
+      const fallbackResult = await fallbackRes.json()
+      processResult(fallbackResult.data[0])
+      return
     }
 
-    const result = await response.json()
-    const data = result.data[0]
+    const submitData = await submitRes.json()
+    const eventId = submitData.event_id
 
-    // Handle both string and object responses
-    const diseaseName = typeof data === 'object'
-      ? (data.disease || 'Unknown')
-      : data
-    const confidence = typeof data === 'object'
-      ? (data.confidence || 95)
-      : 95
+    // Step 2: Poll for result
+    const resultRes = await fetch(
+      `https://rekhashida-krishimitra-disease-api.hf.space/call/predict/${eventId}`
+    )
 
-    const info = getDiseaseInfo(diseaseName)
+    const text = await resultRes.text()
+    // Parse SSE format: "data: [...]\n\n"
+    const dataMatch = text.match(/^data:\s*(.+)$/m)
+    if (!dataMatch) throw new Error('Could not parse response')
 
-    const scanResult = {
-      crop: info.crop,
-      disease: diseaseName,
-      confidence: confidence,
-      severity: info.severity,
-      cause: info.cause,
-      organic: info.organic,
-      chemical: info.chemical,
-      prevention: info.prevention,
-      advice: info.organic,
-    }
-
-    setResult(scanResult)
-
-    if (isSupabaseConfigured() && userProfile?.id) {
-      await supabase.from('crop_scans').insert([{
-        farmer_id: userProfile.id,
-        crop_name: scanResult.crop,
-        disease: scanResult.disease,
-        severity: scanResult.severity,
-        recommendation: scanResult.organic,
-      }])
-    }
+    const resultData = JSON.parse(dataMatch[1])
+    processResult(resultData[0])
 
   } catch (err) {
     console.error('Scan error:', err)
@@ -106,6 +97,42 @@ export default function CropScanner() {
   }
 
   setScanning(false)
+}
+
+// Helper to process result
+const processResult = (data) => {
+  const diseaseName = typeof data === 'object'
+    ? (data.disease || 'Unknown')
+    : String(data)
+  const confidence = typeof data === 'object'
+    ? (data.confidence || 95)
+    : 95
+
+  const info = getDiseaseInfo(diseaseName)
+
+  const scanResult = {
+    crop: info.crop,
+    disease: diseaseName,
+    confidence: confidence,
+    severity: info.severity,
+    cause: info.cause,
+    organic: info.organic,
+    chemical: info.chemical,
+    prevention: info.prevention,
+    advice: info.organic,
+  }
+
+  setResult(scanResult)
+
+  if (isSupabaseConfigured() && userProfile?.id) {
+    supabase.from('crop_scans').insert([{
+      farmer_id: userProfile.id,
+      crop_name: scanResult.crop,
+      disease: scanResult.disease,
+      severity: scanResult.severity,
+      recommendation: scanResult.organic,
+    }])
+  }
 }
 
   const speakResult = () => {
