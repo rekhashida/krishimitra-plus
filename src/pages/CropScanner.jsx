@@ -48,48 +48,64 @@ export default function CropScanner() {
     })
     const base64Image = await toBase64(imageFile)
 
-    // Gradio 5 uses /call/ endpoint (not /run/)
-    // Step 1: Submit the job
-    const submitRes = await fetch(
-      'https://rekhashida-krishimitra-disease-api.hf.space/call/predict',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: [{ path: base64Image, meta: { _type: 'gradio.FileData' } }] })
-      }
+    const HF_URL = 'https://rekhashida-krishimitra-disease-api.hf.space'
+
+    // Step 1: Submit job (Gradio 5 uses /gradio_api/call/)
+    const submitRes = await fetch(`${HF_URL}/gradio_api/call/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: [base64Image] })
+    })
+
+    if (!submitRes.ok) throw new Error(`Submit failed: ${submitRes.status}`)
+    const { event_id } = await submitRes.json()
+
+    // Step 2: Poll for result using event_id
+    const resultRes = await fetch(
+      `${HF_URL}/gradio_api/call/predict/${event_id}`
     )
 
-    if (!submitRes.ok) {
-      // Try old format as fallback
-      const fallbackRes = await fetch(
-        'https://rekhashida-krishimitra-disease-api.hf.space/run/predict',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data: [base64Image] })
-        }
-      )
-      if (!fallbackRes.ok) throw new Error(`API error: ${fallbackRes.status}`)
-      const fallbackResult = await fallbackRes.json()
-      processResult(fallbackResult.data[0])
-      return
+    if (!resultRes.ok) throw new Error(`Result failed: ${resultRes.status}`)
+
+    // Parse SSE stream response
+    const text = await resultRes.text()
+    const lines = text.split('\n').filter(l => l.startsWith('data:'))
+    if (!lines.length) throw new Error('No data in response')
+
+    const lastData = JSON.parse(lines[lines.length - 1].replace('data: ', ''))
+    const data = Array.isArray(lastData) ? lastData[0] : lastData
+
+    const diseaseName = typeof data === 'object'
+      ? (data.disease || 'Unknown')
+      : String(data)
+    const confidence = typeof data === 'object'
+      ? (data.confidence || 95)
+      : 95
+
+    const info = getDiseaseInfo(diseaseName)
+    const scanResult = {
+      crop: info.crop,
+      disease: diseaseName,
+      confidence: confidence,
+      severity: info.severity,
+      cause: info.cause,
+      organic: info.organic,
+      chemical: info.chemical,
+      prevention: info.prevention,
+      advice: info.organic,
     }
 
-    const submitData = await submitRes.json()
-    const eventId = submitData.event_id
+    setResult(scanResult)
 
-    // Step 2: Poll for result
-    const resultRes = await fetch(
-      `https://rekhashida-krishimitra-disease-api.hf.space/call/predict/${eventId}`
-    )
-
-    const text = await resultRes.text()
-    // Parse SSE format: "data: [...]\n\n"
-    const dataMatch = text.match(/^data:\s*(.+)$/m)
-    if (!dataMatch) throw new Error('Could not parse response')
-
-    const resultData = JSON.parse(dataMatch[1])
-    processResult(resultData[0])
+    if (isSupabaseConfigured() && userProfile?.id) {
+      await supabase.from('crop_scans').insert([{
+        farmer_id: userProfile.id,
+        crop_name: scanResult.crop,
+        disease: scanResult.disease,
+        severity: scanResult.severity,
+        recommendation: scanResult.organic,
+      }])
+    }
 
   } catch (err) {
     console.error('Scan error:', err)
