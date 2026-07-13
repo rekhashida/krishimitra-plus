@@ -69,6 +69,34 @@ export default function CropScanner() {
 
     // Parse SSE stream response
     const text = await resultRes.text()
+    console.log('Raw API response:', text) // Debug log
+
+    const lines = text.split('\n').filter(l => l.startsWith('data:'))
+    if (!lines.length) throw new Error('No data in response')
+
+    // Find the line with actual result data (not just status)
+    let data = null
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line.replace('data: ', '').trim())
+        // Gradio 5 wraps result in array: [result]
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          data = parsed[0]
+          break
+        }
+        // Or direct object with disease key
+        if (parsed && typeof parsed === 'object' && parsed.disease) {
+          data = parsed
+          break
+        }
+      } catch (e) {
+        continue
+      }
+    }
+
+    if (!data) throw new Error('Could not parse response data')
+    console.log('Parsed data:', data) // Debug log// Parse SSE stream response
+    const text = await resultRes.text()
     const lines = text.split('\n').filter(l => l.startsWith('data:'))
     if (!lines.length) throw new Error('No data in response')
 
