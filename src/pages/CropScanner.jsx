@@ -33,13 +33,12 @@ export default function CropScanner() {
     setError('')
   }
 
-  const runScan = async () => {
+ const runScan = async () => {
   if (!imageFile) { setError(t('noCropPhoto')); return }
   setScanning(true)
   setError('')
 
   try {
-    // Convert image to base64
     const toBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.onload = () => resolve(reader.result)
@@ -50,7 +49,7 @@ export default function CropScanner() {
 
     const HF_URL = 'https://rekhashida-krishimitra-disease-api.hf.space'
 
-    // Step 1: Submit job (Gradio 5 uses /gradio_api/call/)
+    // Step 1: Submit job
     const submitRes = await fetch(`${HF_URL}/gradio_api/call/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -59,49 +58,65 @@ export default function CropScanner() {
 
     if (!submitRes.ok) throw new Error(`Submit failed: ${submitRes.status}`)
     const { event_id } = await submitRes.json()
+    console.log('Event ID:', event_id)
 
-    // Step 2: Poll for result using event_id
-    const resultRes = await fetch(
-      `${HF_URL}/gradio_api/call/predict/${event_id}`
-    )
+    // Step 2: Read SSE stream with timeout
+    const data = await new Promise((resolve, reject) => {
+      // 60 second timeout
+      const timeout = setTimeout(() => {
+        reject(new Error('Request timed out after 60 seconds'))
+      }, 60000)
 
-    if (!resultRes.ok) throw new Error(`Result failed: ${resultRes.status}`)
+      fetch(`${HF_URL}/gradio_api/call/predict/${event_id}`)
+        .then(res => {
+          const reader = res.body.getReader()
+          const decoder = new TextDecoder()
+          let buffer = ''
 
-    // Parse SSE stream response
-    const text = await resultRes.text()
-    console.log('Raw API response:', text) // Debug log
+          const read = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                clearTimeout(timeout)
+                reject(new Error('Stream ended without result'))
+                return
+              }
 
-    const lines = text.split('\n').filter(l => l.startsWith('data:'))
-    if (!lines.length) throw new Error('No data in response')
+              buffer += decoder.decode(value, { stream: true })
+              const lines = buffer.split('\n')
+              buffer = lines.pop() // keep incomplete line
 
-    // Find the line with actual result data (not just status)
-    let data = null
-    for (const line of lines) {
-      try {
-        const parsed = JSON.parse(line.replace('data: ', '').trim())
-        // Gradio 5 wraps result in array: [result]
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          data = parsed[0]
-          break
-        }
-        // Or direct object with disease key
-        if (parsed && typeof parsed === 'object' && parsed.disease) {
-          data = parsed
-          break
-        }
-      } catch (e) {
-        continue
-      }
-    }
+              for (const line of lines) {
+                console.log('SSE line:', line)
+                if (line.startsWith('data:')) {
+                  const jsonStr = line.slice(5).trim()
+                  try {
+                    const parsed = JSON.parse(jsonStr)
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                      clearTimeout(timeout)
+                      reader.cancel()
+                      resolve(parsed[0])
+                      return
+                    }
+                  } catch (e) {
+                    // not JSON yet, continue
+                  }
+                }
+              }
+              read() // continue reading
+            }).catch(err => {
+              clearTimeout(timeout)
+              reject(err)
+            })
+          }
+          read()
+        })
+        .catch(err => {
+          clearTimeout(timeout)
+          reject(err)
+        })
+    })
 
-    if (!data) throw new Error('Could not parse response data')
-    console.log('Parsed data:', data) // Debug log// Parse SSE stream response
-    const text = await resultRes.text()
-    const lines = text.split('\n').filter(l => l.startsWith('data:'))
-    if (!lines.length) throw new Error('No data in response')
-
-    const lastData = JSON.parse(lines[lines.length - 1].replace('data: ', ''))
-    const data = Array.isArray(lastData) ? lastData[0] : lastData
+    console.log('Result data:', data)
 
     const diseaseName = typeof data === 'object'
       ? (data.disease || 'Unknown')
@@ -137,7 +152,11 @@ export default function CropScanner() {
 
   } catch (err) {
     console.error('Scan error:', err)
-    setError('Could not reach AI model. Please check your internet connection and try again.')
+    if (err.message?.includes('timed out')) {
+      setError('AI model is taking too long. Please try again — it may be warming up.')
+    } else {
+      setError('Could not reach AI model. Please check your internet connection and try again.')
+    }
   }
 
   setScanning(false)
