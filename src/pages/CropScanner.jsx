@@ -39,21 +39,37 @@ export default function CropScanner() {
   setError('')
 
   try {
-    const toBase64 = (file) => new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result)
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-    const base64Image = await toBase64(imageFile)
-
     const HF_URL = 'https://rekhashida-krishimitra-disease-api.hf.space'
 
-    // Step 1: Submit job
+    // Step 1: Upload photo to Gradio server
+    const formData = new FormData()
+    formData.append('files', imageFile)
+
+    const uploadRes = await fetch(`${HF_URL}/gradio_api/upload`, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.status}`)
+    const uploadData = await uploadRes.json()
+    if (!Array.isArray(uploadData) || uploadData.length === 0) {
+      throw new Error('Upload response is invalid')
+    }
+    const tempPath = uploadData[0]
+    console.log('Uploaded temp path:', tempPath)
+
+    // Step 2: Submit prediction job with FileData object
     const submitRes = await fetch(`${HF_URL}/gradio_api/call/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: [base64Image] })
+      body: JSON.stringify({
+        data: [{
+          path: tempPath,
+          orig_name: imageFile.name,
+          mime_type: imageFile.type,
+          meta: { _type: 'gradio.FileData' }
+        }]
+      })
     })
 
     if (!submitRes.ok) throw new Error(`Submit failed: ${submitRes.status}`)
@@ -124,6 +140,13 @@ export default function CropScanner() {
     const confidence = typeof data === 'object'
       ? (data.confidence || 95)
       : 95
+
+    if (diseaseName.toLowerCase().includes('unclear') || diseaseName.toLowerCase().includes('retake')) {
+      setError(`${t('unclearPhotoError')} ${t('unclearPhotoTips')}`)
+      setResult(null)
+      setScanning(false)
+      return
+    }
 
     const info = getDiseaseInfo(diseaseName)
     const scanResult = {
