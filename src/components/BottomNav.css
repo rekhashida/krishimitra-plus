@@ -39,11 +39,3 @@
   color: var(--paddy-green);
 }
 
-@media (min-width: 640px) {
-  .bottom-nav {
-    max-width: 640px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  }
-}
