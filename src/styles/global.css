@@ -423,7 +423,6 @@ img {
 
 @media (min-width: 768px) {
   .app-main {
-    max-width: 720px;
     padding: 32px;
   }
 
